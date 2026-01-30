@@ -1,0 +1,39 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import GridSearchCV
+
+import main
+import json
+
+df_train_val, df_eval = main.load_data('development.csv', 'evaluation.csv')
+X_train_val, y_train_val = main.clean_data(df_train_val)
+X_eval, y_eval = main.clean_data(df_train_val)
+pipeline = main.get_pipeline()
+
+param_grid = {
+  'preprocessor__tfidf__max_features': [15000, 20000, 30000], 
+  'preprocessor__tfidf__ngram_range': [ (1,1), (1, 3)],
+  'preprocessor__tfidf__binary': [True, False],
+  'preprocessor__tfidf__sublinear_tf': [True, False],
+  'preprocessor__tfidf__min_df': [1, 2, 5, 10],
+  'preprocessor__tfidf__max_df': [.5, .7, .9],
+  'model__C': np.logspace(-1,2,6), 
+  'model__class_weight': ['balanced'],
+  'model__penalty': [ 'l1','l2'],
+  'model__dual': [False],
+  'model__max_iter': [1000,2000,3000]
+}
+
+grid_search = GridSearchCV(
+  estimator= pipeline,
+  param_grid= param_grid,
+  n_jobs=4,
+  cv = 3,
+  scoring='f1_macro',
+) 
+
+grid_search.fit(X_train_val, y_train_val)
+best_params = grid_search.best_params_
+with open('best_params.json', 'w') as f:
+  json.dump(best_params, f, indent= 4)
+print(f'Migliori parameti: {best_params}')

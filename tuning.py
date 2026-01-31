@@ -26,7 +26,7 @@ grid_search = RandomizedSearchCV(
   pipeline,
   param_grid,
   n_jobs=4,
-  cv = 3,
+  cv = 2,
   scoring='f1_macro',
   verbose = 3,
   random_state=main.SEED

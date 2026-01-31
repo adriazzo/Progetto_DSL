@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 import html
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
 from sklearn.svm import LinearSVC
 
 import random
@@ -48,32 +48,34 @@ def get_pipeline(model_params = None):
     model_params = {}
 
   preprocessor = ColumnTransformer(
-    [('tfidf',TfidfVectorizer(), 'text'),
+    [('tfidf',TfidfVectorizer(stop_words='english'), 'text'),
      ('source', OneHotEncoder(handle_unknown = 'ignore'), ['source']),
-    ('page_rank', OneHotEncoder(handle_unknown = 'ignore'), ['page_rank'])
+    ('page_rank', OrdinalEncoder(handle_unknown = 'error'), ['page_rank'])
   ])
 
   pipeline = Pipeline(
     [('preprocessor', preprocessor),
-     ('model', LinearSVC(random_state=SEED))]
+     ('model', LinearSVC(random_state=SEED, dual=False))]
   )
   if model_params:
     pipeline.set_params(**model_params)
   return pipeline
+
+
 def main():
   df_train_val, df_eval = load_data('development.csv', 'evaluation.csv')
   X_train_val, y_train_val = clean_data(df_train_val)
   X_eval, y_eval = clean_data(df_eval)
 
-  params = {
-    'preprocessor__tfidf__sublinear_tf': True, 
-     'preprocessor__tfidf__ngram_range': (1, 3), 
-     'preprocessor__tfidf__min_df': 10, 
-     'preprocessor__tfidf__max_features': 20000, 
-     'preprocessor__tfidf__max_df': 0.7, 
-     'preprocessor__tfidf__binary': False, 
-     'model__class_weight': 'balanced', 
-     'model__C': np.float64(0.3981071705534972)}
+  params = {'preprocessor__tfidf__sublinear_tf': True, 
+            'preprocessor__tfidf__ngram_range': (1, 3), 
+            'preprocessor__tfidf__min_df': 10, 
+            'preprocessor__tfidf__max_features': 30000, 
+            'preprocessor__tfidf__max_df': 0.7, 
+            'preprocessor__tfidf__binary': False, 
+            'model__max_iter': 3000, 
+            'model__class_weight': 'balanced', 
+            'model__C': np.float64(0.1)}
   
   model = get_pipeline(params)
 

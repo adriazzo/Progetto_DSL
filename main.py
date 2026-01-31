@@ -25,7 +25,7 @@ def clean_data(df):
   y = pd.Series()
   if 'label' in df.columns:
     mask = df['label'] == 5
-    df.loc[mask, 'text'] = 6 * df['title'] + 3 * df['article']
+    df.loc[mask, 'text'] = 6 * df['title'] + ' ' 3 * df['article']
     df.drop_duplicates(subset = 'article', inplace=True)
 
     y = df['label']

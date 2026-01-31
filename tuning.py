@@ -4,11 +4,13 @@ from sklearn.model_selection import RandomizedSearchCV
 
 import main
 
+# load and clean data
 df_train_val, df_eval = main.load_data('development.csv', 'evaluation.csv')
 X_train_val, y_train_val = main.clean_data(df_train_val)
 X_eval, y_eval = main.clean_data(df_eval)
 pipeline = main.get_pipeline()
 
+# all possible configurations to be tested
 param_grid = {
   'preprocessor__tfidf__max_features': [15000, 20000, 30000], 
   'preprocessor__tfidf__ngram_range': [ (1,1), (1, 3)],
@@ -22,6 +24,7 @@ param_grid = {
   'model__max_iter': [1000,2000,3000]
 }
 
+# only a subset of grid search is used
 grid_search = RandomizedSearchCV(
   pipeline,
   param_grid,
@@ -32,6 +35,7 @@ grid_search = RandomizedSearchCV(
   random_state=main.SEED
 ) 
 
+# fit model to find best parameters
 grid_search.fit(X_train_val, y_train_val)
 best_params = grid_search.best_params_
 

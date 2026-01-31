@@ -1,12 +1,8 @@
   ## Import useful libraries
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.compose import ColumnTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import f1_score
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 import html
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder

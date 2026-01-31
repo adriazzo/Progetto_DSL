@@ -5,7 +5,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 import html
-from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.svm import LinearSVC
 
 import random
@@ -24,11 +24,11 @@ def clean_data(df):
     df[col] = df[col].str.casefold().str.strip()
   df.loc[df['article'].str.startswith('read full'), 'article'] = ''
   df['text'] = 2 * df['title'] + ' ' + df['article']
-  df = html.escape(df)
+  df = html.unescape(df)
   y = pd.Series()
   if 'label' in df.columns: # operation on rows are performed only on the train set
     mask = df['label'] == 5
-    df.loc[mask, 'text'] = 6 * df['title'] + ' ' + 3 * df['article']
+    #df.loc[mask, 'text'] = 6 * df['title'] + ' ' + 3 * df['article']
     df.drop_duplicates(subset = 'article', inplace=True)
 
     y = df['label']
@@ -51,7 +51,7 @@ def get_pipeline(model_params = None):
   preprocessor = ColumnTransformer(
     [('tfidf',TfidfVectorizer(stop_words='english'), 'text'), # 'text' column is transformed into a sparse matrix with weights proportional to their frequency
      ('source', OneHotEncoder(handle_unknown = 'ignore'), ['source']), # 'source' column is treated as a categorical variable
-    ('page_rank', OrdinalEncoder(handle_unknown = 'error'), ['page_rank']) # 'page_rank' column is trated as an ordinal variable
+    ('page_rank', StandardScaler(), ['page_rank']) # 'page_rank' column is trated as an ordinal variable
   ])
 
   pipeline = Pipeline(
